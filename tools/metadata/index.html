@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Photo Metadata & Keyword Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8 font-sans">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+          AI Metadata & Stock Tag Generator
+        </h1>
+        <p class="text-sm text-slate-400 mt-1">
+          Auto-generate 10–12 word titles, 15–25 top tags, and stock categories with Excel export.
+        </p>
+      </div>
+      <button onclick="toggleSettingsModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition">
+        <i class="fa-solid fa-gear text-blue-400"></i> AI API Settings
+      </button>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="md:col-span-2 border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition bg-slate-800/50" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" multiple accept="image/png, image/jpeg, image/webp, image/svg+xml, .eps" class="hidden" onchange="handleFileSelect(event)" />
+        <i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-400 mb-3"></i>
+        <h3 class="font-semibold text-lg">Click or Drag & Drop Images / Vectors</h3>
+        <p class="text-xs text-slate-400 mt-1">Supports JPG, PNG, WEBP, SVG, and EPS (with 3-Strike Auto-Retry)</p>
+      </div>
+
+      <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex justify-between text-sm mb-2 text-slate-300">
+            <span>Files Queued: <strong id="queueCount" class="text-white">0</strong></span>
+            <span>Completed: <strong id="doneCount" class="text-green-400">0</strong></span>
+          </div>
+          <div class="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
+            <div id="progressBar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <button id="processBtn" onclick="startProcessing()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Generate Metadata
+          </button>
+          <button id="exportBtn" onclick="exportToExcel()" disabled class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-file-excel"></i> Export Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+      <div class="p-4 border-b border-slate-700 flex justify-between items-center">
+        <h2 class="font-semibold text-slate-200">Generated Results Preview</h2>
+        <button onclick="clearAll()" class="text-xs text-rose-400 hover:underline">Clear List</button>
+      </div>
+      <div class="overflow-x-auto max-h-[450px]">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-900/80 sticky top-0 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-700">
+            <tr>
+              <th class="p-3">Preview</th>
+              <th class="p-3">Filename</th>
+              <th class="p-3">Title (10-12 Words)</th>
+              <th class="p-3">Category</th>
+              <th class="p-3">Keywords (15-25)</th>
+              <th class="p-3 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody" class="divide-y divide-slate-700">
+            <tr id="emptyRow">
+              <td colspan="6" class="p-8 text-center text-slate-500">No files uploaded yet. Add images above to begin.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-bold">AI Model & Multi-Key Settings</h3>
+        <button onclick="toggleSettingsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <div>
+        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Select AI Model</label>
+        <select id="aiModel" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500" onchange="updateProviderHint()">
+          <optgroup label="Google Gemini (Free API Tier Available)">
+            <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Latest & Most Capable)</option>
+            <option value="gemini-3.7-flash">Gemini 3.7 Flash (Stable)</option>
+            <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite (Fastest & Lightweight)</option>
+          </optgroup>
+          <optgroup label="OpenAI (Requires API Balance)">
+            <option value="gpt-4o-mini">ChatGPT (GPT-4o-mini - Fast/Cost-Effective)</option>
+            <option value="gpt-4o">ChatGPT (GPT-4o - Highest Intelligence)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="block text-xs font-semibold uppercase text-slate-400">API Keys (One per line for auto-rotation)</label>
+          <span class="text-[11px] text-blue-400">Stored locally</span>
+        </div>
+        <textarea id="apiKeysInput" rows="4" placeholder="sk-key_1&#10;sk-key_2&#10;sk-key_3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm font-mono text-xs focus:outline-none focus:border-blue-500"></textarea>
+        <p id="providerHint" class="text-[11px] text-slate-400 mt-1">Get free keys from <a href="https://aistudio.google.com/" target="_blank" class="text-blue-400 underline">Google AI Studio</a>.</p>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="toggleSettingsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">Cancel</button>
+        <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-semibold">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ALLOWED_CATEGORIES = [
+      "Animals", "Buildings and Architecture", "Business", "Drinks", "The Environment",
+      "States of Mind", "Food", "Graphic Resources", "Hobbies and Leisure", "Industry",
+      "Landscapes", "Lifestyle", "People", "Plants and Flowers", "Culture and Religion",
+      "Science", "Social Issues", "Sports", "Technology", "Transport", "Travel"
+    ];
+
+    let fileQueue = [];
+    let processedData = [];
+    let currentKeyIndex = 0;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedModel = localStorage.getItem('meta_ai_model') || 'gemini-3.8-flash';
+      const savedKeys = localStorage.getItem('meta_ai_keys') || '';
+      
+      const modelSelect = document.getElementById('aiModel');
+      if(modelSelect.querySelector(`option[value="${savedModel}"]`)) modelSelect.value = savedModel;
+      
+      document.getElementById('apiKeysInput').value = savedKeys;
+      updateProviderHint();
+    });
+
+    function toggleSettingsModal() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+
+    function updateProviderHint() {
+      const model = document.getElementById('aiModel').value;
+      const hint = document.getElementById('providerHint');
+      if (model.includes('gemini')) {
+        hint.innerHTML = 'Get free keys from <a href="https://aistudio.google.com/" target="_blank" class="text-blue-400 underline">Google AI Studio</a>.';
+      } else {
+        hint.innerHTML = 'Get API keys from <a href="https://platform.openai.com/api-keys" target="_blank" class="text-blue-400 underline">OpenAI Platform</a>.';
+      }
+    }
+
+    function saveSettings() {
+      localStorage.setItem('meta_ai_model', document.getElementById('aiModel').value);
+      localStorage.setItem('meta_ai_keys', document.getElementById('apiKeysInput').value.trim());
+      toggleSettingsModal();
+    }
+
+    function getNextApiKey() {
+      const rawKeys = localStorage.getItem('meta_ai_keys') || '';
+      const keys = rawKeys.split('\n').map(k => k.trim()).filter(k => k.length > 5);
+      if (keys.length === 0) return null;
+      const key = keys[currentKeyIndex % keys.length];
+      currentKeyIndex++;
+      return key;
+    }
+
+    async function extractEpsThumbnail(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const match = e.target.result.match(/<(?:xmpGImg|xapGImg):image>([^<]+)<\/(?:xmpGImg|xapGImg):image>/);
+          if (match && match[1]) {
+            const base64Data = match[1].replace(/\s/g, ''); 
+            resolve({ mimeType: 'image/jpeg', data: base64Data, previewUrl: `data:image/jpeg;base64,${base64Data}` });
+          } else resolve(null);
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsText(file.slice(0, 2 * 1024 * 1024));
+      });
+    }
+
+    async function fileToBase64(file) {
+      if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+        const svgUrl = URL.createObjectURL(file);
+        try {
+          const img = await new Promise((resolve, reject) => {
+            const node = new Image();
+            node.onload = () => resolve(node);
+            node.onerror = reject;
+            node.src = svgUrl;
+          });
+          const naturalW = img.naturalWidth || 1000;
+          const naturalH = img.naturalHeight || 1000;
+          const scale = Math.min(1, 1800 / Math.max(naturalW, naturalH));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(naturalW * scale));
+          canvas.height = Math.max(1, Math.round(naturalH * scale));
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Could not create an image canvas.');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/png');
+          return { mimeType: 'image/png', data: dataUrl.split(',')[1] };
+        } finally {
+          URL.revokeObjectURL(svgUrl);
+        }
+      }
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ mimeType: file.type, data: reader.result.split(',')[1] });
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleFileSelect(e) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+      document.getElementById('emptyRow')?.remove();
+
+      for (const file of files) {
+        const id = 'file_' + Math.random().toString(36).substring(2, 9);
+        let previewUrl = '';
+
+        if (file.name.toLowerCase().endsWith('.eps')) {
+          const extracted = await extractEpsThumbnail(file);
+          if (extracted) previewUrl = extracted.previewUrl;
+        } else if (file.type.startsWith('image/')) {
+          previewUrl = URL.createObjectURL(file);
+        }
+        
+        const item = { id, file, filename: file.name, previewUrl, title: '', category: '', keywords: '', status: 'Pending' };
+        fileQueue.push(item);
+        appendRow(item);
+      }
+      updateCounts();
+    }
+
+    function appendRow(item) {
+      const tbody = document.getElementById('resultsTableBody');
+      const tr = document.createElement('tr');
+      tr.id = item.id;
+      tr.className = "hover:bg-slate-700/50 transition border-b border-slate-700/50";
+      tr.innerHTML = `
+        <td class="p-3">
+          ${item.previewUrl ? `<img src="${item.previewUrl}" class="w-10 h-10 object-cover rounded shadow" />` : `<div class="w-10 h-10 bg-slate-700 rounded flex items-center justify-center font-mono text-[9px] text-slate-400 uppercase" title="No visual preview">${item.filename.split('.').pop()}</div>`}
+        </td>
+        <td class="p-3 font-mono text-slate-300 max-w-[150px] truncate" title="${item.filename}">${item.filename}</td>
+        <td class="p-3 text-slate-200 title-cell max-w-[250px] truncate">-</td>
+        <td class="p-3 text-slate-300 category-cell">-</td>
+        <td class="p-3 text-slate-400 keywords-cell max-w-[250px] truncate">-</td>
+        <td class="p-3 text-center status-cell"><span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-700 text-slate-300">Pending</span></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function updateCounts() {
+      document.getElementById('queueCount').innerText = fileQueue.length;
+      const completed = processedData.length;
+      document.getElementById('doneCount').innerText = completed;
+      document.getElementById('progressBar').style.width = (fileQueue.length ? (completed / fileQueue.length) * 100 : 0) + '%';
+      document.getElementById('exportBtn').disabled = completed === 0;
+    }
+
+    function safeParseJSON(text) {
+      try {
+        let cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start !== -1 && end !== -1) cleaned = cleaned.substring(start, end + 1);
+        return JSON.parse(cleaned);
+      } catch (e) {
+        throw new Error("AI returned malformed JSON");
+      }
+    }
+
+    // BULLETPROOF PROCESSING ENGINE WITH 3-STRIKE RETRY
+    async function startProcessing() {
+      const pendingItems = fileQueue.filter(i => i.status === 'Pending' || i.status === 'Failed');
+      if (pendingItems.length === 0) return alert("No pending files to process.");
+
+      const selectedModel = localStorage.getItem('meta_ai_model') || 'gemini-3.8-flash';
+      const isGemini = selectedModel.includes('gemini');
+      const btn = document.getElementById('processBtn');
+      btn.disabled = true;
+
+      for (const item of pendingItems) {
+        const apiKey = getNextApiKey();
+        if (!apiKey) {
+          alert("Please add at least one API key in Settings.");
+          toggleSettingsModal();
+          break;
+        }
+
+        updateRowStatus(item.id, 'Processing', 'bg-blue-900 text-blue-300 animate-pulse', "Sending to AI...");
+
+        let base64Image = null;
+        let safeMimeType = 'image/jpeg';
+
+        try {
+          if (item.file.name.toLowerCase().endsWith('.eps')) {
+            const epsThumb = await extractEpsThumbnail(item.file);
+            if (epsThumb) { base64Image = epsThumb.data; safeMimeType = epsThumb.mimeType; }
+          } else if (item.file.type.startsWith('image/')) {
+            const extracted = await fileToBase64(item.file);
+            base64Image = extracted.data;
+            safeMimeType = ['image/jpeg', 'image/png', 'image/webp'].includes(extracted.mimeType) ? extracted.mimeType : 'image/jpeg';
+          }
+        } catch (e) {
+          console.warn("Failed to extract image, proceeding with text only");
+        }
+        
+        let result = null;
+        let attempt = 1;
+        let finalError = "";
+
+        // 3-STRIKE RETRY LOOP
+        while (attempt <= 3 && !result) {
+          try {
+            if (attempt === 1 && base64Image) {
+              // Strike 1: Try with Image Data
+              if (isGemini) result = await callGeminiAPI(apiKey, item.filename, base64Image, safeMimeType, selectedModel);
+              else result = await callOpenAIAPI(apiKey, item.filename, base64Image, safeMimeType, selectedModel);
+            } else {
+              // Strike 2 & 3: Fallback to Text-Only (Bypasses Safety Blocks and Image Formatting Errors)
+              if (attempt === 2) updateRowStatus(item.id, 'Retrying', 'bg-orange-900 text-orange-300 animate-pulse', "Visual rejected, retrying with filename only...");
+              
+              if (isGemini) result = await callGeminiAPI(apiKey, item.filename, null, null, selectedModel);
+              else result = await callOpenAIAPI(apiKey, item.filename, null, null, selectedModel);
+            }
+          } catch (err) {
+            finalError = err.message;
+            console.error(`Attempt ${attempt} failed for ${item.filename}:`, finalError);
+            attempt++;
+            if (attempt <= 3) {
+              // Wait 3 seconds before next strike
+              await new Promise(r => setTimeout(r, 3000));
+            }
+          }
+        }
+
+        if (result) {
+          item.title = result.title;
+          item.category = result.category;
+          item.keywords = result.keywords.join(', ');
+          item.status = 'Completed';
+          processedData.push(item);
+          updateRowResult(item);
+        } else {
+          // If all 3 strikes fail
+          item.status = 'Failed';
+          let errorBadge = "API Error";
+          if (finalError.includes("401") || finalError.includes("key")) errorBadge = "Bad API Key";
+          else if (finalError.includes("429") || finalError.includes("quota")) errorBadge = "Rate Limit";
+          else if (finalError.includes("Safety")) errorBadge = "Blocked by AI";
+          
+          updateRowStatus(item.id, errorBadge, 'bg-rose-900 text-rose-300', `Hover to read full error: ${finalError}`);
+        }
+        
+        updateCounts();
+        // Mandatory 4.5 second delay between files to respect free tier rate limits
+        await new Promise(r => setTimeout(r, 4500));
+      }
+      btn.disabled = false;
+    }
+
+    function updateRowStatus(id, text, className, tooltip = "") {
+      const row = document.getElementById(id);
+      if (row) row.querySelector('.status-cell').innerHTML = `<span class="px-2 py-0.5 rounded-full text-[10px] ${className} cursor-help" title="${tooltip.replace(/"/g, "'")}">${text}</span>`;
+    }
+
+    function updateRowResult(item) {
+      const row = document.getElementById(item.id);
+      if (row) {
+        row.querySelector('.title-cell').innerText = item.title;
+        row.querySelector('.title-cell').title = item.title;
+        row.querySelector('.category-cell').innerText = item.category;
+        row.querySelector('.keywords-cell').innerText = item.keywords;
+        row.querySelector('.keywords-cell').title = item.keywords;
+        updateRowStatus(item.id, 'Done', 'bg-emerald-900 text-emerald-300', "Successfully generated");
+      }
+    }
+
+    const SYSTEM_PROMPT = `You are a commercial stock photography metadata and SEO expert. Analyze the visual content (or filename if no visual is available). 
+Output JSON strictly in this format:
+{
+  "title": "A 10 to 12 word SEO-friendly descriptive title without special characters or punctuation spam",
+  "category": "Pick exactly one from the Allowed Categories list",
+  "keywords": ["15 to 25 relevant, high-ranking, commercial single words and short buyer tags"]
+}
+Allowed Categories: ${ALLOWED_CATEGORIES.join(', ')}
+Rules:
+1. Title MUST be exactly 10 to 12 words.
+2. Keywords MUST contain exactly 15 to 25 tags (all lowercase).
+3. Do NOT include markdown ticks.`;
+
+    async function callGeminiAPI(apiKey, filename, base64Image, mimeType, modelId) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+      const contents = [{ parts: [{ text: SYSTEM_PROMPT + `\nFilename: ${filename}` }] }];
+      if (base64Image) contents[0].parts.unshift({ inlineData: { mimeType: mimeType, data: base64Image } });
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          contents,
+          generationConfig: { responseMimeType: "application/json" } 
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `API HTTP ${res.status}`);
+      
+      // Safety Filter Check
+      if (!data.candidates || !data.candidates[0].content) {
+         const reason = data.candidates?.[0]?.finishReason || "Unknown Reason";
+         throw new Error(`Safety Filter Triggered (${reason})`);
+      }
+      
+      return safeParseJSON(data.candidates[0].content.parts[0].text);
+    }
+
+    async function callOpenAIAPI(apiKey, filename, base64Image, mimeType, modelId) {
+      const endpoint = 'https://api.openai.com/v1/chat/completions';
+      const userContent = [{ type: "text", text: `Filename: ${filename}` }];
+      if (base64Image) userContent.push({ type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } });
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: modelId,
+          response_format: { type: "json_object" },
+          messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: userContent }]
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || `API HTTP ${res.status}`);
+      return safeParseJSON(data.choices[0].message.content);
+    }
+
+    function exportToExcel() {
+      if (processedData.length === 0) return;
+      const excelRows = [["Filename", "Title", "Keywords", "Category", "Releases"]];
+      processedData.forEach(item => excelRows.push([item.filename, item.title, item.keywords, item.category, ""]));
+      const worksheet = XLSX.utils.aoa_to_sheet(excelRows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Metadata");
+      worksheet['!cols'] = [{wch:25}, {wch:50}, {wch:60}, {wch:25}, {wch:12}];
+      XLSX.writeFile(workbook, `Stock_Metadata_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    function clearAll() {
+      fileQueue = []; processedData = [];
+      document.getElementById('resultsTableBody').innerHTML = `<tr id="emptyRow"><td colspan="6" class="p-8 text-center text-slate-500">No files uploaded yet. Add images above to begin.</td></tr>`;
+      updateCounts();
+    }
+  </script>
+  <script src="../../assets/hub-bridge.js"></script>
+</body>
+</html>

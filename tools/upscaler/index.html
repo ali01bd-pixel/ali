@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Private, browser-based AI image upscaler powered by Real-ESRGAN and ONNX Runtime Web." />
+  <meta name="theme-color" content="#0b1020" />
+  <title>PixelLift — AI Image Upscaler</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%237c3aed'/%3E%3Cpath d='M23 67 43 47l11 11 12-14 11 23H23Z' fill='white'/%3E%3Ccircle cx='64' cy='34' r='8' fill='white'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://huggingface.co" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none"><rect x="3" y="3" width="42" height="42" rx="12" stroke="currentColor" stroke-width="3"/><path d="M11 34 20.5 24.5 27 31l6.5-8L37 34H11Z" fill="currentColor"/><circle cx="32.5" cy="15.5" r="3.5" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">PixelLift</div>
+          <div class="brand-tag">AI IMAGE UPSCALER</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.5 15.2A8.7 8.7 0 0 1 8.8 3.5 8.8 8.8 0 1 0 20.5 15.2Z"/></svg>
+        </button>
+        <a class="github-btn" href="https://github.com/" target="_blank" rel="noopener" aria-label="Open GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.1c-3.1.68-3.75-1.3-3.75-1.3-.5-1.26-1.24-1.6-1.24-1.6-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 .1 1.56-.99 1.56-.99.48-1.0 1.2-.8 1.5-.61.05-.71.31-1.2.56-1.48-2.48-.28-5.1-1.24-5.1-5.53 0-1.22.44-2.22 1.16-3-.12-.28-.5-1.42.11-2.96 0 0 .95-.3 3.11 1.15a10.74 10.74 0 0 1 5.66 0C14.7 3.7 15.65 4 15.65 4c.61 1.54.23 2.68.11 2.96.72.78 1.16 1.78 1.16 3 0 4.3-2.62 5.24-5.12 5.52.32.28.6.83.6 1.67v3.6c0 .31.2.66.77.54A11.2 11.2 0 0 0 12 .8Z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <aside class="sidebar">
+        <div class="side-section">
+          <div class="section-title">Upscale settings</div>
+          <label class="field-label" for="scaleSelect">Scale</label>
+          <select id="scaleSelect" class="select">
+            <option value="2">2× — balanced output size</option>
+            <option value="4">4× — maximum resolution</option>
+          </select>
+
+          <label class="field-label" for="modelSelect">AI model</label>
+          <select id="modelSelect" class="select">
+            <option value="plus">Real-ESRGAN x4plus — highest detail</option>
+            <option value="general">Real-ESRGAN General — faster</option>
+          </select>
+          <p class="field-help" id="modelHelp">Downloads about 67 MB once, then stays cached in this browser.</p>
+
+          <label class="field-label" for="tileSelect">Tile size</label>
+          <select id="tileSelect" class="select">
+            <option value="256">256 px — safer for lower-memory devices</option>
+            <option value="384" selected>384 px — recommended</option>
+            <option value="512">512 px — faster on strong systems</option>
+          </select>
+
+          <label class="field-label" for="overlapSelect">Tile overlap</label>
+          <select id="overlapSelect" class="select">
+            <option value="16">16 px</option>
+            <option value="32" selected>32 px — recommended</option>
+            <option value="48">48 px — extra seam protection</option>
+          </select>
+        </div>
+
+        <div class="side-section divider-top">
+          <div class="section-title">Output</div>
+          <label class="field-label" for="formatSelect">Format</label>
+          <select id="formatSelect" class="select">
+            <option value="image/png">PNG — lossless</option>
+            <option value="image/jpeg">JPEG — smaller files</option>
+            <option value="image/webp">WebP — modern compression</option>
+          </select>
+
+          <label class="field-label" for="qualityRange">Quality <span id="qualityValue">92%</span></label>
+          <input id="qualityRange" class="range" type="range" min="70" max="100" value="92" />
+
+          <label class="field-label" for="strengthRange">AI strength <span id="strengthValue">100%</span></label>
+          <input id="strengthRange" class="range" type="range" min="60" max="100" value="100" />
+          <p class="field-help">Lower values blend in a high-quality browser resize for a more natural result.</p>
+
+          <label class="check-row">
+            <input id="alphaCheck" type="checkbox" checked />
+            <span>Preserve PNG transparency</span>
+          </label>
+        </div>
+
+        <div class="side-section divider-top side-note">
+          <div class="mini-card">
+            <span class="mini-icon">⚡</span>
+            <div><strong>GPU first</strong><span>Uses WebGPU when supported, with WASM fallback.</span></div>
+          </div>
+          <div class="mini-card">
+            <span class="mini-icon">🔒</span>
+            <div><strong>Private by design</strong><span>Images are processed inside your browser.</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <section class="hero-card">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="pulse-dot"></span> ON-DEVICE AI</div>
+            <h1>Turn small images into <span>high-resolution</span> assets.</h1>
+            <p>Upscale JPG, JPEG, PNG, WebP and more using Real-ESRGAN directly in your browser. No account and no image upload required.</p>
+          </div>
+          <div class="hero-stats">
+            <div><strong>2× / 4×</strong><span>AI enlargement</span></div>
+            <div><strong>Batch</strong><span>multiple images</span></div>
+            <div><strong>Local</strong><span>browser processing</span></div>
+          </div>
+        </section>
+
+        <section class="upload-card" id="dropZone" tabindex="0" aria-label="Image upload area">
+          <div class="upload-orb" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="8" width="44" height="48" rx="8"/><path d="M20 42 29 33l8 8 6-7 8 8"/><circle cx="40" cy="21" r="4"/><path d="M32 52V27m0 0-7 7m7-7 7 7"/></svg>
+          </div>
+          <div class="upload-title">Drop images here</div>
+          <div class="upload-sub">PNG, JPG, JPEG, WebP, GIF, BMP, TIFF and more supported by your browser</div>
+          <button class="primary-btn" id="chooseBtn" type="button"><span>Choose images</span><span class="btn-arrow">↗</span></button>
+          <input id="fileInput" type="file" accept="image/*" multiple hidden />
+          <div class="upload-note">For best results, start with the largest original available.</div>
+        </section>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="queue-count" id="queueCount">0 images</div>
+            <button class="text-btn" id="clearBtn" type="button" disabled>Clear all</button>
+          </div>
+          <div class="toolbar-right">
+            <button class="secondary-btn" id="downloadAllBtn" type="button" disabled>Download all</button>
+            <button class="primary-btn compact" id="upscaleAllBtn" type="button" disabled>Upscale all <span class="btn-arrow">↗</span></button>
+          </div>
+        </div>
+
+        <section class="queue" id="queue" aria-live="polite"></section>
+
+        <section class="compare-card empty" id="compareCard">
+          <div class="compare-head">
+            <div>
+              <div class="section-title">Before / after</div>
+              <div class="compare-sub" id="compareSub">Select a completed image to compare.</div>
+            </div>
+            <div class="compare-actions">
+              <button class="icon-btn small" id="openOutputBtn" type="button" disabled title="Open output">↗</button>
+              <button class="icon-btn small" id="downloadCurrentBtn" type="button" disabled title="Download output">↓</button>
+            </div>
+          </div>
+          <div class="compare-stage" id="compareStage">
+            <div class="empty-compare">
+              <div class="empty-icon">✦</div>
+              <strong>Your enhanced image will appear here</strong>
+              <span>Use the slider to inspect fine details once processing is complete.</span>
+            </div>
+            <img id="beforeImg" alt="Original image" />
+            <div class="after-layer" id="afterLayer"><img id="afterImg" alt="Upscaled image" /></div>
+            <div class="compare-label before-label">BEFORE</div>
+            <div class="compare-label after-label">AFTER</div>
+            <div class="compare-line" id="compareLine"><span></span></div>
+          </div>
+          <div class="compare-control" id="compareControl" hidden>
+            <span>Before</span>
+            <input id="compareRange" type="range" min="0" max="100" value="50" aria-label="Before after comparison" />
+            <span>After</span>
+          </div>
+        </section>
+
+        <section class="info-strip">
+          <div><span class="info-icon">✓</span><span><strong>Client-side processing</strong><br><small>Images remain in your browser during enhancement.</small></span></div>
+          <div><span class="info-icon">◈</span><span><strong>Real-ESRGAN</strong><br><small>AI super-resolution model for detail restoration.</small></span></div>
+          <div><span class="info-icon">↯</span><span><strong>GitHub Pages ready</strong><br><small>Static files only — no server required.</small></span></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>PixelLift · built for GitHub Pages</span>
+      <span>Real-ESRGAN model © its respective authors · BSD-3-Clause</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop" id="busyModal" hidden>
+    <div class="busy-modal">
+      <div class="spinner"></div>
+      <strong id="busyTitle">Preparing AI engine…</strong>
+      <span id="busyText">The model is downloaded only once and cached in this browser.</span>
+    </div>
+  </div>
+
+  <!-- ONNX Runtime Web: loaded from jsDelivr so this static site works directly on GitHub Pages. -->
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="app.js" type="module"></script>
+  <script src="../../assets/hub-bridge.js"></script>
+</body>
+</html>
