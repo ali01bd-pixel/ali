@@ -1,157 +1,88 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="ALI STUDIO pure vector generator">
-  <title>ALI STUDIO 3.0 — Designer Edition</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b15">
+  <meta name="description" content="Ali Creative HUB — a unified GitHub Pages workspace for image upscaling, flat-color vectorization, and stock metadata generation.">
+  <title>Ali Creative HUB</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%237c3aed'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='%23070b15'/%3E%3Crect x='10' y='10' width='80' height='80' rx='20' fill='url(%23g)'/%3E%3Cpath d='M25 67 39 34l6 0 14 33h-8l-3-8H36l-3 8zM39 52h7l-3.5-9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/hub.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
-    <span class="brand-mark">✦</span>
-    <span class="brand-copy">
-      <span class="brand-name">ALI STUDIO 3.0</span>
-      <span class="brand-sub">Premium Designer Edition</span>
-    </span>
+  <div class="page">
+    <header class="topbar">
+      <button class="brand" id="homeNav" type="button" aria-label="Open Ali Creative HUB home" style="background:transparent;color:inherit;cursor:pointer;text-align:left">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5.2 18.2 10.2 5.8h3.4l5.1 12.4h-3.1l-1-2.9H9.2l-1 2.9H5.2Zm5-5.5h3.7L12 7.5l-1.8 5.2Z" fill="currentColor"/><path d="M18.1 5.1h1.5v1.5h-1.5z" fill="currentColor"/></svg>
+        </span>
+        <span>
+          <span class="brand-title">Ali Creative HUB</span>
+          <span class="brand-sub">IMAGE · VECTOR · METADATA WORKSPACE</span>
+        </span>
+      </button>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-btn active" data-open-tool="home" type="button">Home</button>
+        <button class="nav-btn" data-open-tool="upscaler" type="button">Upscaler</button>
+        <button class="nav-btn" data-open-tool="vectorizer" type="button">Vectorizer</button>
+        <button class="nav-btn" data-open-tool="metadata" type="button">Metadata</button>
+      </nav>
+    </header>
+
+    <section id="homeView" class="home-view">
+      <div class="hero">
+        <div class="hero-kicker"><span class="status-dot"></span> GitHub Pages ready · no backend required for the image tools</div>
+        <h1>One creative hub for your <span class="gradient-text">image workflow.</span></h1>
+        <p>Upscale images, turn flat artwork into editable vectors, and generate stock-ready metadata from one clean workspace.</p>
+        <div class="hero-stats">
+          <span class="stat-chip">3 integrated tools</span>
+          <span class="stat-chip" id="browserStatus">Checking browser…</span>
+          <span class="stat-chip">Batch-friendly workflows</span>
+          <span class="stat-chip">Local settings saved in your browser</span>
+        </div>
+      </div>
+
+      <section class="tool-grid" aria-label="Creative tools">
+        <article class="tool-card" data-card-tool="upscaler" style="--card-glow:rgba(124,58,237,.17);--icon-bg:rgba(124,58,237,.14);--icon-color:#c4b5fd">
+          <div class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7 15 3-3 2 2 3-4 2 3"/><circle cx="15.5" cy="8.5" r="1.3"/></svg></div>
+          <h2>AI Image Upscaler</h2>
+          <p>Increase image resolution with Real-ESRGAN directly in the browser, with batch processing and before/after comparison.</p>
+          <div class="feature-row"><span class="badge">2× / 4×</span><span class="badge">WebGPU + WASM</span><span class="badge">Batch</span><span class="badge">Before / After</span></div>
+          <div class="tool-footer"><button class="open-btn" data-open-tool="upscaler" type="button">Open Upscaler ↗</button><span class="last-use" data-last-use="upscaler">Not used this browser yet</span></div>
+        </article>
+
+        <article class="tool-card" data-card-tool="vectorizer" style="--card-glow:rgba(6,182,212,.14);--icon-bg:rgba(6,182,212,.12);--icon-color:#67e8f9">
+          <div class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 6.5h10M6 17.5h12M8.5 4.5h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z"/><path d="m9 12 2-2 2 3 2-1 1 2"/></svg></div>
+          <h2>Flat-Color Vectorizer</h2>
+          <p>Reduce artwork to a controlled palette and trace clean editable paths for silhouettes, icons, logos, and simple flat designs.</p>
+          <div class="feature-row"><span class="badge">2–8 colors</span><span class="badge">Color sampling</span><span class="badge">SVG</span><span class="badge">EPS</span></div>
+          <div class="tool-footer"><button class="open-btn" data-open-tool="vectorizer" type="button">Open Vectorizer ↗</button><span class="last-use" data-last-use="vectorizer">Not used this browser yet</span></div>
+        </article>
+
+        <article class="tool-card" data-card-tool="metadata" style="--card-glow:rgba(34,197,94,.12);--icon-bg:rgba(34,197,94,.10);--icon-color:#86efac">
+          <div class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="4" width="14" height="16" rx="2.5"/><path d="M8 8h8M8 11h8M8 14h5"/><path d="M15.5 16.5h3"/></svg></div>
+          <h2>Stock Metadata Generator</h2>
+          <p>Generate stock-friendly titles, 15–25 keywords, a category, and an Excel file for your image library.</p>
+          <div class="feature-row"><span class="badge">Gemini / OpenAI</span><span class="badge">Multi-key rotation</span><span class="badge">JPG · PNG · WEBP · SVG · EPS</span><span class="badge">XLSX</span></div>
+          <div class="tool-footer"><button class="open-btn" data-open-tool="metadata" type="button">Open Metadata ↗</button><span class="last-use" data-last-use="metadata">Not used this browser yet</span></div>
+        </article>
+      </section>
+
+      <section class="workflow" aria-label="Suggested workflow">
+        <div class="workflow-step"><span class="step-number">1</span><div><strong>Enhance</strong><span>Upscale a raster image when more working resolution is needed.</span></div></div>
+        <div class="workflow-step"><span class="step-number">2</span><div><strong>Vectorize</strong><span>Convert simple flat-color artwork into editable SVG / EPS paths.</span></div></div>
+        <div class="workflow-step"><span class="step-number">3</span><div><strong>Describe</strong><span>Generate stock titles, keywords, categories, and Excel export.</span></div></div>
+      </section>
+
+      <div class="home-foot"><span id="systemNote">Checking browser capabilities…</span><span>Shortcuts: H = Home · 1 = Upscaler · 2 = Vectorizer · 3 = Metadata</span></div>
+    </section>
+
+    <section id="toolView" class="tool-view">
+      <div class="tool-head"><div class="tool-head-title"><strong id="activeToolTitle">Creative Tool</strong><span id="activeToolSub">Select a tool</span></div><div class="tool-head-actions"><button id="homeFromToolBtn" class="mini-btn" type="button">← Home</button><button id="reloadBtn" class="mini-btn" type="button">Reload tool</button><button id="standaloneBtn" class="mini-btn" type="button">Open standalone ↗</button></div></div>
+      <iframe id="activeToolFrame" class="tool-frame" title="Ali Creative HUB tool" loading="lazy" allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </section>
   </div>
-  <div class="status-pill">
-    <span class="status-dot"></span>
-    <strong id="statusMode">STUDIO ENGINE</strong>
-    <span id="statusText">Strict grids & pure vectors</span>
-  </div>
-  <div class="account">
-    <div class="avatar">M</div>
-    <span class="account-name">Mohammad</span>
-    <button class="upgrade">✦ PRO</button>
-  </div>
-</header>
 
-<main class="app-shell">
-  <aside class="sidebar">
-    <section class="hero-card">
-      <div class="eyebrow">STUDIO WORKSPACE</div>
-      <h1>Premium Vector<br><span>generator</span></h1>
-      <p>11 highly curated, graphic-designer-grade engines. Perfect grids, crisp gradients, zero blur filters.</p>
-    </section>
-
-    <section class="control-block">
-      <div class="label-row"><label for="posterCount">ARTBOARDS</label><output id="posterCountVal">4</output></div>
-      <input id="posterCount" type="range" min="1" max="8" value="4">
-    </section>
-
-    <section class="settings-title"><span>COMPOSITION</span><span class="settings-badge">LIVE</span></section>
-
-    <section class="control-block">
-      <label for="designMode">STUDIO ENGINE</label>
-      <select id="designMode" style="height: 40px; font-size: 11px;">
-        <optgroup label="Geometric Line Art">
-          <option value="opArtWireframe" selected>✦ Optical Line Art (Wireframes)</option>
-        </optgroup>
-        <optgroup label="Holiday & Winter Edition">
-          <option value="xmasScandiTree">✦ Abstract Scandi Trees</option>
-          <option value="xmasOrnaments">✦ Hanging Glass Ornaments</option>
-          <option value="xmasSnowflake">✦ Frost Geometry Snowflakes</option>
-          <option value="xmasRibbons">✦ Festive Folded Ribbons</option>
-        </optgroup>
-        <optgroup label="Core Studio Aesthetics">
-          <option value="amberVolume">01. Amber Volume (3D Geometry)</option>
-          <option value="midnightIce">02. Midnight Ice (Sharp Glass)</option>
-          <option value="swissGrid">03. Swiss Minimalist (Strict Grid)</option>
-          <option value="holoFold">04. Holographic Folds (Ribbons)</option>
-          <option value="retroHalftone">05. Retro Halftone (Dot Matrices)</option>
-          <option value="fluidAura">06. Fluid Aura (Smooth Intersections)</option>
-        </optgroup>
-      </select>
-    </section>
-
-    <section class="control-block">
-      <label for="theme">COLOR PALETTE</label>
-      <select id="theme" style="height: 40px; font-size: 11px;">
-        <option value="curated" selected>Auto-Curated for Engine</option>
-        <option value="inkMinimal">Ink Minimal (Blue on White)</option>
-        <option value="blueprint">Blueprint (White on Blue)</option>
-        <option value="xmasClassic">Christmas Classic</option>
-        <option value="xmasFrost">Winter Frost</option>
-        <option value="monochrome">Obsidian Monochrome</option>
-        <option value="crimson">Crimson & Gold</option>
-      </select>
-    </section>
-
-    <section class="control-block range-control">
-      <div class="label-row"><label for="density">VISUAL COMPLEXITY</label><output id="densityVal">8</output></div>
-      <input id="density" type="range" min="3" max="25" value="8">
-    </section>
-
-    <section class="control-block two-col">
-      <div>
-        <label for="format">FORMAT</label>
-        <select id="format">
-          <option value="portrait" selected>Portrait</option>
-          <option value="square">Square</option>
-          <option value="landscape">Landscape</option>
-        </select>
-      </div>
-      <div>
-        <label for="quality">RESOLUTION</label>
-        <select id="quality">
-          <option value="standard">Standard</option>
-          <option value="large" selected>Print (Large)</option>
-          <option value="xl">Print (XL)</option>
-        </select>
-      </div>
-    </section>
-
-    <section class="control-block">
-      <div class="label-row"><label for="seed">GENERATION SEED</label><span class="tiny-note">Locks randomness</span></div>
-      <input id="seed" class="text-input" type="number" value="260831" min="1" step="1">
-    </section>
-
-    <div class="button-grid">
-      <button id="randomize" class="btn secondary">🎲 Randomize</button>
-      <button id="regenerate" class="btn primary">✦ Render Artboards</button>
-    </div>
-
-    <div class="download-stack">
-      <button id="downloadAll" class="btn download">⇩ DOWNLOAD SVG BUNDLE</button>
-    </div>
-  </aside>
-
-  <section class="workspace">
-    <div class="workspace-head">
-      <div>
-        <div class="workspace-kicker">ALI STUDIO 3.0</div>
-        <h2 id="workspaceTitle">OPTICAL LINE ART</h2>
-        <p id="workspaceSubtitle">Mathematical wireframes and Moire patterns.</p>
-      </div>
-      <div class="workspace-actions">
-        <div class="collection-meta"><strong id="collectionCount">4</strong><span>ARTBOARDS</span></div>
-        <button id="zoomOut" class="icon-btn" title="Zoom out">−</button>
-        <span id="zoomLabel">100%</span>
-        <button id="zoomIn" class="icon-btn" title="Zoom in">+</button>
-      </div>
-    </div>
-    <div class="canvas-wrap" id="canvasWrap">
-      <div id="posterGrid" class="poster-grid"></div>
-    </div>
-  </section>
-</main>
-
-<template id="posterTemplate">
-  <article class="poster-card">
-    <div class="poster-toolbar">
-      <span class="poster-number">ARTBOARD 01</span>
-      <span class="poster-mode">VECTOR / 01</span>
-      <div>
-        <button class="mini-btn download-one" title="Download SVG">⇩</button>
-        <button class="mini-btn copy-one" title="Copy SVG">⧉</button>
-      </div>
-    </div>
-    <div class="poster-frame"></div>
-  </article>
-</template>
-
-<script src="script.js"></script>
+  <script src="assets/hub.js"></script>
 </body>
 </html>
