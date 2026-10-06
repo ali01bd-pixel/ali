@@ -25,3 +25,11 @@ The tool pages remain isolated under `tools/` so their original DOM/CSS/JavaScri
 - `1` — Upscaler
 - `2` — Vectorizer
 - `3` — Metadata
+
+
+## Integrated tools
+
+- AI Image Upscaler
+- Flat-Color Vectorizer
+- Stock Metadata Generator
+- Online File Compressor

@@ -26,6 +26,7 @@
         <button class="nav-btn" data-open-tool="upscaler" type="button">Upscaler</button>
         <button class="nav-btn" data-open-tool="vectorizer" type="button">Vectorizer</button>
         <button class="nav-btn" data-open-tool="metadata" type="button">Metadata</button>
+        <button class="nav-btn" data-open-tool="compressor" type="button">Compressor</button>
       </nav>
     </header>
 
@@ -33,9 +34,9 @@
       <div class="hero">
         <div class="hero-kicker"><span class="status-dot"></span> GitHub Pages ready · no backend required for the image tools</div>
         <h1>One creative hub for your <span class="gradient-text">image workflow.</span></h1>
-        <p>Upscale images, turn flat artwork into editable vectors, and generate stock-ready metadata from one clean workspace.</p>
+        <p>Upscale images, turn flat artwork into editable vectors, generate stock-ready metadata, and compress files from one clean workspace.</p>
         <div class="hero-stats">
-          <span class="stat-chip">3 integrated tools</span>
+          <span class="stat-chip">4 integrated tools</span>
           <span class="stat-chip" id="browserStatus">Checking browser…</span>
           <span class="stat-chip">Batch-friendly workflows</span>
           <span class="stat-chip">Local settings saved in your browser</span>
@@ -66,15 +67,25 @@
           <div class="feature-row"><span class="badge">Gemini / OpenAI</span><span class="badge">Multi-key rotation</span><span class="badge">JPG · PNG · WEBP · SVG · EPS</span><span class="badge">XLSX</span></div>
           <div class="tool-footer"><button class="open-btn" data-open-tool="metadata" type="button">Open Metadata ↗</button><span class="last-use" data-last-use="metadata">Not used this browser yet</span></div>
         </article>
+
+
+        <article class="tool-card" data-card-tool="compressor" style="--card-glow:rgba(14,165,233,.14);--icon-bg:rgba(14,165,233,.12);--icon-color:#7dd3fc">
+          <div class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 4h9l3 3v13H6z"/><path d="M15 4v4h3M8.5 12h7M8.5 15h5"/><path d="m16 18 2 2 3-3"/></svg></div>
+          <h2>Online File Compressor</h2>
+          <p>Compress JPG, JPEG, PNG, and PDF files in your browser, adjust compression per file, and download individual results or a ZIP.</p>
+          <div class="feature-row"><span class="badge">10–90%</span><span class="badge">JPG · PNG · PDF</span><span class="badge">Batch</span><span class="badge">ZIP export</span></div>
+          <div class="tool-footer"><button class="open-btn" data-open-tool="compressor" type="button">Open Compressor ↗</button><span class="last-use" data-last-use="compressor">Not used this browser yet</span></div>
+        </article>
       </section>
 
       <section class="workflow" aria-label="Suggested workflow">
         <div class="workflow-step"><span class="step-number">1</span><div><strong>Enhance</strong><span>Upscale a raster image when more working resolution is needed.</span></div></div>
         <div class="workflow-step"><span class="step-number">2</span><div><strong>Vectorize</strong><span>Convert simple flat-color artwork into editable SVG / EPS paths.</span></div></div>
         <div class="workflow-step"><span class="step-number">3</span><div><strong>Describe</strong><span>Generate stock titles, keywords, categories, and Excel export.</span></div></div>
+        <div class="workflow-step"><span class="step-number">4</span><div><strong>Compress</strong><span>Reduce delivery file size before sharing, archiving, or uploading.</span></div></div>
       </section>
 
-      <div class="home-foot"><span id="systemNote">Checking browser capabilities…</span><span>Shortcuts: H = Home · 1 = Upscaler · 2 = Vectorizer · 3 = Metadata</span></div>
+      <div class="home-foot"><span id="systemNote">Checking browser capabilities…</span><span>Shortcuts: H = Home · 1 = Upscaler · 2 = Vectorizer · 3 = Metadata · 4 = Compressor</span></div>
     </section>
 
     <section id="toolView" class="tool-view">

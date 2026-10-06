@@ -22,6 +22,13 @@
       src: 'tools/metadata/index.html',
       color: '#86efac',
       storage: 'ali-hub-use-metadata'
+    },
+    compressor: {
+      label: 'Online File Compressor',
+      sub: 'Image & PDF size reduction',
+      src: 'tools/compressor/index.html',
+      color: '#67e8f9',
+      storage: 'ali-hub-use-compressor'
     }
   };
 
@@ -144,6 +151,7 @@
     if (event.key === '1') openTool('upscaler');
     if (event.key === '2') openTool('vectorizer');
     if (event.key === '3') openTool('metadata');
+    if (event.key === '4') openTool('compressor');
   });
 
   const initial = hashTool() || safeGet('ali-hub-last-tool');
